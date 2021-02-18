@@ -13,6 +13,7 @@ const characterRoutes = require("./routes/character");
 app.use(characterRoutes);
 
 app.all("*", (req, res) => {
+  console.log("route unknown");
   res.status(404).json({ message: "Route not found" });
 });
 
