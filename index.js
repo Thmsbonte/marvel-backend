@@ -5,6 +5,13 @@ app.use(formidable());
 const cors = require("cors");
 app.use(cors());
 require("dotenv").config();
+const mongoose = require("mongoose");
+
+// CONNECTION TO DB
+mongoose.connect("mongodb://localhost:27017/marvel", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 // ROUTES IMPORT
 const comicRoutes = require("./routes/comic");
