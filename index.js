@@ -8,12 +8,15 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 
 // CONNECTION TO DB
-mongoose.connect("mongodb://localhost:27017/marvel", {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useCreateIndex: true,
 });
 
 // ROUTES IMPORT
+const userRoutes = require("./routes/user");
+app.use(userRoutes);
 const comicRoutes = require("./routes/comic");
 app.use(comicRoutes);
 const characterRoutes = require("./routes/character");
@@ -24,6 +27,6 @@ app.all("*", (req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-app.listen("3001", () => {
+app.listen(process.env.PORT, () => {
   console.log("Server has started");
 });
