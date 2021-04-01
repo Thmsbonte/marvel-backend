@@ -15,31 +15,39 @@ router.post("/user/signup", async (req, res) => {
     // Est-ce que l'email et le mdp sont renseignés
     if (req.fields.email && req.fields.password) {
       // Est-ce que l'email existe déjà dans la BDD
-      const mail = await User.findOne({ email: req.fields.email });
-      if (!mail) {
-        // Hash generation
-        const salt = uid2(16);
-        const hash = SHA256(req.fields.password + salt).toString(encBase64);
-        const token = uid2(16);
-        // Creation de l'utilisateur dans la BDD
-        const user = new User({
-          email: req.fields.email,
-          token: token,
-          hash: hash,
-          salt: salt,
-        });
-        await user.save();
-        // Réponse au client
-        res.status(200).json({
-          _id: user._id,
-          token: user.token,
-          email: user.email,
-        });
+      if (req.fields.password.length >= 6) {
+        const mail = await User.findOne({ email: req.fields.email });
+        if (!mail) {
+          // Hash generation
+          const salt = uid2(16);
+          const hash = SHA256(req.fields.password + salt).toString(encBase64);
+          const token = uid2(16);
+          // Creation de l'utilisateur dans la BDD
+          const user = new User({
+            email: req.fields.email,
+            token: token,
+            hash: hash,
+            salt: salt,
+          });
+          await user.save();
+          // Réponse au client
+          res.status(200).json({
+            _id: user._id,
+            token: user.token,
+            email: user.email,
+          });
+        } else {
+          res.status(400).json({ message: "L'utilisateur existe déjà" });
+        }
       } else {
-        res.status(400).json({ message: "User already exist" });
+        res
+          .status(400)
+          .json({
+            message: "Votre mot de passe doit contenir au minimum 6 caractères",
+          });
       }
     } else {
-      res.status(400).json({ message: "Missing fields" });
+      res.status(400).json({ message: "Veuillez compléter tous les champs" });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -65,16 +73,21 @@ router.post("/user/login", async (req, res) => {
             email: user.email,
           });
         } else {
-          res.status(401).json({ message: "Unauthorized" });
+          res.status(401).json({ message: "Non autorisé" });
         }
       } else {
-        res.status(401).json({ message: "Unauthorized" });
+        res.status(401).json({ message: "Non autorisé" });
       }
     } else {
-      res.status(400).json({ message: "Missing fields" });
+      res.status(400).json({ message: "Veuillez compléter tous les champs" });
     }
   } catch (error) {
-    res.status(400).json({ message: "Request to failed, please try again" });
+    res
+      .status(400)
+      .json({
+        message:
+          "La connexion à la base de données a échoué, veuillez réessayer",
+      });
   }
 });
 
